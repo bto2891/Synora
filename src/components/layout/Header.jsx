@@ -1,8 +1,10 @@
 import { Bell } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
+import { useI18n } from '../../i18n/I18nContext'
 
 export default function Header() {
   const { user, role } = useAuth()
+  const { t } = useI18n()
   const accent = role?.accent || '#60a5fa'
 
   return (
@@ -20,13 +22,13 @@ export default function Header() {
             S
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="text-base font-bold text-white">Synora</span>
+            <span className="text-base font-bold text-white">{t('appName')}</span>
             {role && (
               <span
                 className="text-[11px] font-semibold uppercase tracking-wide"
                 style={{ color: accent }}
               >
-                {role.label}
+                {t(`roles.${role.id}`)}
               </span>
             )}
           </div>
@@ -35,7 +37,7 @@ export default function Header() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            aria-label="Notifications"
+            aria-label={t('common.notifications')}
             className="relative flex h-12 w-12 items-center justify-center rounded-lg text-[#8a93a6] active:bg-[#1d2230]"
           >
             <Bell className="h-6 w-6" />

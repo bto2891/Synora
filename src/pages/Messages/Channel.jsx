@@ -1,11 +1,13 @@
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, Send, Sparkles } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
+import { useI18n } from '../../i18n/I18nContext'
 import { CHANNELS, MESSAGES } from '../../data/sample'
 
 export default function Channel() {
   const { channelId } = useParams()
   const { role } = useAuth()
+  const { t, tr } = useI18n()
   const accent = role.accent
   const channel = CHANNELS.find((c) => c.id === channelId)
   const msgs = MESSAGES[channelId] || []
@@ -13,28 +15,32 @@ export default function Channel() {
   if (!channel) {
     return (
       <div className="py-10 text-center text-sm text-[#8a93a6]">
-        Channel not found.{' '}
+        {t('messages.notFound')}{' '}
         <Link to="/messages" className="text-[#60a5fa]">
-          Back to channels
+          {t('messages.backToChannels')}
         </Link>
       </div>
     )
   }
+
+  const channelName = tr(channel, 'name')
 
   return (
     <div className="flex min-h-[calc(100vh-180px)] flex-col">
       <div className="-mx-4 flex items-center gap-3 border-b border-[#262c3a] px-4 pb-3">
         <Link
           to="/messages"
-          aria-label="Back"
+          aria-label={t('common.back')}
           className="flex h-10 w-10 items-center justify-center rounded-lg text-[#8a93a6] active:bg-[#1d2230]"
         >
           <ArrowLeft className="h-6 w-6" />
         </Link>
         <div>
-          <p className="text-base font-bold text-white">#{channel.name}</p>
+          <p className="text-base font-bold text-white">#{channelName}</p>
           <p className="text-xs text-[#8a93a6]">
-            {channel.kind === 'zone' ? 'Zone channel' : 'Group channel'}
+            {channel.kind === 'zone'
+              ? t('messages.zoneChannel')
+              : t('messages.groupChannel')}
           </p>
         </div>
       </div>
@@ -50,13 +56,13 @@ export default function Channel() {
                 <div className="max-w-[80%] rounded-2xl rounded-tl-sm border border-[#a78bfa]/30 bg-[#a78bfa]/10 px-4 py-2.5">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-[#a78bfa]">
-                      {m.author}
+                      {tr(m, 'author')}
                     </span>
                     <span className="rounded-md bg-[#a78bfa]/20 px-1.5 py-0.5 text-[10px] font-bold uppercase text-[#a78bfa]">
                       AI
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-white">{m.text}</p>
+                  <p className="mt-1 text-sm text-white">{tr(m, 'text')}</p>
                   <p className="mt-1 text-[11px] text-[#8a93a6]">{m.time}</p>
                 </div>
               </div>
@@ -69,7 +75,7 @@ export default function Channel() {
                   className="max-w-[80%] rounded-2xl rounded-tr-sm px-4 py-2.5 text-[#0f1117]"
                   style={{ backgroundColor: accent }}
                 >
-                  <p className="text-sm font-medium">{m.text}</p>
+                  <p className="text-sm font-medium">{tr(m, 'text')}</p>
                   <p className="mt-1 text-[11px] opacity-70">{m.time}</p>
                 </div>
               </div>
@@ -81,8 +87,8 @@ export default function Channel() {
                 {m.initials}
               </div>
               <div className="max-w-[80%] rounded-2xl rounded-tl-sm bg-[#161a23] px-4 py-2.5">
-                <p className="text-xs font-bold text-[#8a93a6]">{m.author}</p>
-                <p className="mt-0.5 text-sm text-white">{m.text}</p>
+                <p className="text-xs font-bold text-[#8a93a6]">{tr(m, 'author')}</p>
+                <p className="mt-0.5 text-sm text-white">{tr(m, 'text')}</p>
                 <p className="mt-1 text-[11px] text-[#8a93a6]">{m.time}</p>
               </div>
             </div>
@@ -90,7 +96,7 @@ export default function Channel() {
         })}
         {msgs.length === 0 && (
           <p className="py-8 text-center text-sm text-[#8a93a6]">
-            No messages yet.
+            {t('messages.empty')}
           </p>
         )}
       </div>
@@ -99,12 +105,12 @@ export default function Channel() {
         <div className="flex items-center gap-2 rounded-xl border border-[#262c3a] bg-[#161a23] px-4 py-2.5">
           <input
             type="text"
-            placeholder={`Message #${channel.name}`}
+            placeholder={t('messages.inputPlaceholder', { name: channelName })}
             className="w-full bg-transparent text-base text-white placeholder-[#8a93a6] outline-none"
           />
           <button
             type="button"
-            aria-label="Send"
+            aria-label={t('messages.send')}
             className="flex h-10 w-10 items-center justify-center rounded-lg text-[#0f1117]"
             style={{ backgroundColor: accent }}
           >

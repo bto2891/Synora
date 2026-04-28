@@ -7,18 +7,20 @@ import {
   User,
 } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
-
-const navItems = [
-  { to: '/', icon: Home, label: 'Home' },
-  { to: '/tasks', icon: ListChecks, label: 'Tasks' },
-  { to: '/messages', icon: MessageSquare, label: 'Messages' },
-  { to: '/warehouse', icon: Warehouse, label: 'Warehouse' },
-  { to: '/profile', icon: User, label: 'Profile' },
-]
+import { useI18n } from '../../i18n/I18nContext'
 
 export default function BottomNav() {
   const { role } = useAuth()
+  const { t } = useI18n()
   const accent = role?.accent || '#60a5fa'
+
+  const navItems = [
+    { to: '/', icon: Home, label: t('nav.home') },
+    { to: '/tasks', icon: ListChecks, label: t('nav.tasks') },
+    { to: '/messages', icon: MessageSquare, label: t('nav.messages') },
+    { to: '/warehouse', icon: Warehouse, label: t('nav.warehouse') },
+    { to: '/profile', icon: User, label: t('nav.profile') },
+  ]
 
   return (
     <nav

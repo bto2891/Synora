@@ -1,12 +1,12 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LogOut, Globe, ChevronRight, Bell, ShieldCheck, HelpCircle } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
+import { useI18n } from '../../i18n/I18nContext'
 
 export default function Profile() {
   const navigate = useNavigate()
   const { user, role, logout } = useAuth()
-  const [lang, setLang] = useState('EN')
+  const { t, tz, lang, setLang } = useI18n()
 
   const accent = role.accent
 
@@ -15,12 +15,14 @@ export default function Profile() {
     navigate('/login', { replace: true })
   }
 
+  const roleLabel = t(`roles.${role.id}`)
+
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-2xl font-bold text-white">Profile</h1>
+        <h1 className="text-2xl font-bold text-white">{t('profile.title')}</h1>
         <p className="mt-0.5 text-sm text-[#8a93a6]">
-          Account, language, and session
+          {t('profile.subtitle')}
         </p>
       </header>
 
@@ -37,16 +39,16 @@ export default function Profile() {
               className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#0f1117]"
               style={{ backgroundColor: accent }}
             >
-              {role.label.split(' ')[0]}
+              {roleLabel.split(' ')[0]}
             </span>
           </div>
           <div className="flex-1">
             <p className="text-lg font-bold text-white">{user.name}</p>
             <p className="text-sm" style={{ color: accent }}>
-              {role.label}
+              {roleLabel}
             </p>
             <p className="mt-1 text-sm text-[#8a93a6]">
-              {user.project} · {user.zone}
+              {user.project} · {tz(user.zone)}
             </p>
           </div>
         </div>
@@ -54,7 +56,7 @@ export default function Profile() {
 
       <section>
         <h2 className="mb-2 px-1 text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
-          Language
+          {t('profile.languageHeader')}
         </h2>
         <div className="rounded-xl border border-[#262c3a] bg-[#161a23] p-4">
           <div className="flex items-center gap-3">
@@ -65,21 +67,24 @@ export default function Profile() {
               <Globe className="h-5 w-5" />
             </div>
             <p className="flex-1 text-base font-semibold text-white">
-              App language
+              {t('profile.appLanguage')}
             </p>
             <div className="flex overflow-hidden rounded-lg border border-[#262c3a]">
-              {['EN', 'ES'].map((l) => (
+              {[
+                { code: 'en', label: 'EN' },
+                { code: 'es', label: 'ES' },
+              ].map((l) => (
                 <button
-                  key={l}
+                  key={l.code}
                   type="button"
-                  onClick={() => setLang(l)}
+                  onClick={() => setLang(l.code)}
                   className="min-h-[40px] min-w-[52px] text-sm font-bold transition-colors"
                   style={{
-                    backgroundColor: lang === l ? accent : '#1d2230',
-                    color: lang === l ? '#0f1117' : '#8a93a6',
+                    backgroundColor: lang === l.code ? accent : '#1d2230',
+                    color: lang === l.code ? '#0f1117' : '#8a93a6',
                   }}
                 >
-                  {l}
+                  {l.label}
                 </button>
               ))}
             </div>
@@ -89,7 +94,7 @@ export default function Profile() {
 
       <section>
         <h2 className="mb-2 px-1 text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
-          Account
+          {t('profile.accountHeader')}
         </h2>
         <div className="divide-y divide-[#262c3a] overflow-hidden rounded-xl border border-[#262c3a] bg-[#161a23]">
           <button
@@ -100,7 +105,7 @@ export default function Profile() {
               <Bell className="h-5 w-5" />
             </div>
             <p className="flex-1 text-base font-semibold text-white">
-              Notifications
+              {t('profile.notifications')}
             </p>
             <ChevronRight className="h-5 w-5 text-[#8a93a6]" />
           </button>
@@ -112,7 +117,7 @@ export default function Profile() {
               <ShieldCheck className="h-5 w-5" />
             </div>
             <p className="flex-1 text-base font-semibold text-white">
-              Privacy & security
+              {t('profile.privacy')}
             </p>
             <ChevronRight className="h-5 w-5 text-[#8a93a6]" />
           </button>
@@ -124,7 +129,7 @@ export default function Profile() {
               <HelpCircle className="h-5 w-5" />
             </div>
             <p className="flex-1 text-base font-semibold text-white">
-              Help center
+              {t('profile.help')}
             </p>
             <ChevronRight className="h-5 w-5 text-[#8a93a6]" />
           </button>
@@ -137,10 +142,10 @@ export default function Profile() {
         className="flex min-h-[56px] w-full items-center justify-center gap-2 rounded-xl border border-[#262c3a] bg-[#161a23] px-4 text-base font-semibold text-[#ef4444] active:bg-[#1d2230]"
       >
         <LogOut className="h-5 w-5" />
-        Logout
+        {t('profile.logout')}
       </button>
 
-      <p className="pt-2 text-center text-xs text-[#8a93a6]">Synora · v2.5.0</p>
+      <p className="pt-2 text-center text-xs text-[#8a93a6]">{t('appName')} · v2.5.0</p>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { Check, X, Camera, Plus } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
+import { useI18n } from '../../i18n/I18nContext'
 import { PENDING_APPROVALS, TASKS, TECHNICIANS } from '../../data/sample'
 
 const statusDot = {
@@ -10,24 +11,25 @@ const statusDot = {
 
 export default function SupervisorHome() {
   const { user } = useAuth()
-  const zoneTasks = TASKS.filter((t) => t.zone === user.zone)
-  const pending = zoneTasks.filter((t) => t.status !== 'done')
-  const zoneTechs = TECHNICIANS.filter((t) => t.zone === user.zone)
+  const { t, tr, tz, formatDate } = useI18n()
+  const zoneTasks = TASKS.filter((task) => task.zone === user.zone)
+  const pending = zoneTasks.filter((task) => task.status !== 'done')
+  const zoneTechs = TECHNICIANS.filter((tech) => tech.zone === user.zone)
   const approvals = PENDING_APPROVALS.filter((a) => a.zone === user.zone)
 
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-sm text-[#8a93a6]">Tuesday, April 28</p>
-        <h1 className="mt-1 text-2xl font-bold text-white">{user.zone}</h1>
+        <p className="text-sm text-[#8a93a6]">{formatDate()}</p>
+        <h1 className="mt-1 text-2xl font-bold text-white">{tz(user.zone)}</h1>
         <p className="mt-0.5 text-sm" style={{ color: '#34d399' }}>
-          {pending.length} pending tasks
+          {t('home.pendingTasks', { count: pending.length })}
         </p>
       </header>
 
       <section>
         <h2 className="mb-3 text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
-          Pending approvals
+          {t('home.pendingApprovals')}
         </h2>
         <div className="space-y-3">
           {approvals.map((a) => (
@@ -47,13 +49,13 @@ export default function SupervisorHome() {
                     {a.taskId}
                   </p>
                   <p className="text-base font-semibold text-white">
-                    {a.task}
+                    {tr(a, 'task')}
                   </p>
                   <p className="mt-0.5 text-sm text-[#8a93a6]">
                     {a.technician}
                   </p>
                   <p className="mt-1 text-xs text-[#8a93a6]">
-                    Submitted {a.submitted}
+                    {t('home.submittedAgo', { time: tr(a, 'submitted') })}
                   </p>
                 </div>
               </div>
@@ -63,14 +65,14 @@ export default function SupervisorHome() {
                   className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-[#22c55e] text-base font-bold text-[#0f1117] active:bg-[#16a34a]"
                 >
                   <Check className="h-5 w-5" strokeWidth={3} />
-                  Approve
+                  {t('home.approve')}
                 </button>
                 <button
                   type="button"
                   className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg border border-[#ef4444]/30 bg-[#ef4444]/10 text-base font-bold text-[#ef4444] active:bg-[#ef4444]/20"
                 >
                   <X className="h-5 w-5" strokeWidth={3} />
-                  Reject
+                  {t('home.reject')}
                 </button>
               </div>
             </div>
@@ -80,31 +82,31 @@ export default function SupervisorHome() {
 
       <section>
         <h2 className="mb-3 text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
-          Active technicians · {user.zone}
+          {t('home.activeTechniciansZone', { zone: tz(user.zone) })}
         </h2>
         <div className="overflow-hidden rounded-xl border border-[#262c3a] bg-[#161a23]">
-          {zoneTechs.map((t, i) => (
+          {zoneTechs.map((tech, i) => (
             <div
-              key={t.id}
+              key={tech.id}
               className={`flex items-center gap-3 p-4 ${i > 0 ? 'border-t border-[#262c3a]' : ''}`}
             >
               <div className="relative">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1d2230] text-sm font-semibold text-white">
-                  {t.initials}
+                  {tech.initials}
                 </div>
                 <span
-                  className={`absolute right-0 bottom-0 h-3 w-3 rounded-full ring-2 ring-[#161a23] ${statusDot[t.status]}`}
+                  className={`absolute right-0 bottom-0 h-3 w-3 rounded-full ring-2 ring-[#161a23] ${statusDot[tech.status]}`}
                 />
               </div>
               <div className="flex-1 overflow-hidden">
                 <p className="truncate text-base font-semibold text-white">
-                  {t.name}
+                  {tech.name}
                 </p>
                 <p className="truncate text-sm text-[#8a93a6]">
-                  {t.currentTask}
+                  {tr(tech, 'currentTask')}
                 </p>
               </div>
-              <p className="text-sm font-semibold text-white">{t.activeFor}</p>
+              <p className="text-sm font-semibold text-white">{tech.activeFor}</p>
             </div>
           ))}
         </div>
@@ -116,7 +118,7 @@ export default function SupervisorHome() {
         style={{ backgroundColor: '#34d399', boxShadow: '0 10px 25px -5px rgba(52,211,153,0.4)' }}
       >
         <Plus className="h-6 w-6" strokeWidth={2.5} />
-        Assign Task
+        {t('home.assignTask')}
       </button>
     </div>
   )

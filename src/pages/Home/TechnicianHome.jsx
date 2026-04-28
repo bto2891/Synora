@@ -1,34 +1,36 @@
 import { Camera, Play, Pause, Check, Clock } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '../../auth/AuthContext'
+import { useI18n } from '../../i18n/I18nContext'
 import { TASKS } from '../../data/sample'
-
-const STATES = [
-  { id: 'start', label: 'Start', icon: Play },
-  { id: 'in_progress', label: 'In progress', icon: Pause },
-  { id: 'done', label: 'Done', icon: Check },
-]
 
 export default function TechnicianHome() {
   const { user } = useAuth()
-  const myTasks = TASKS.filter((t) => t.assignee === user.name)
-  const active = myTasks.find((t) => t.status === 'in_progress') || myTasks[0]
-  const completed = myTasks.filter((t) => t.status === 'done')
+  const { t, tr, tz, formatDate } = useI18n()
+  const myTasks = TASKS.filter((task) => task.assignee === user.name)
+  const active = myTasks.find((task) => task.status === 'in_progress') || myTasks[0]
+  const completed = myTasks.filter((task) => task.status === 'done')
 
   const [state, setState] = useState('in_progress')
+
+  const STATES = [
+    { id: 'start', label: t('home.start'), icon: Play },
+    { id: 'in_progress', label: t('home.inProgress'), icon: Pause },
+    { id: 'done', label: t('home.done'), icon: Check },
+  ]
 
   return (
     <div className="space-y-5">
       <header>
-        <p className="text-sm text-[#8a93a6]">Tuesday, April 28</p>
-        <h1 className="mt-1 text-2xl font-bold text-white">My tasks today</h1>
+        <p className="text-sm text-[#8a93a6]">{formatDate()}</p>
+        <h1 className="mt-1 text-2xl font-bold text-white">{t('home.myTasksToday')}</h1>
         <p className="mt-0.5 text-sm text-[#e2e8f0]">{user.name}</p>
       </header>
 
       {active && (
         <section>
           <h2 className="mb-3 text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
-            Active task
+            {t('home.activeTask')}
           </h2>
           <div className="overflow-hidden rounded-2xl border border-[#262c3a] bg-[#161a23]">
             <div
@@ -43,21 +45,21 @@ export default function TechnicianHome() {
                   {active.id}
                 </span>
                 <span className="rounded-md border border-[#60a5fa]/30 bg-[#60a5fa]/10 px-2 py-0.5 text-[11px] font-semibold uppercase text-[#60a5fa]">
-                  {active.zone}
+                  {tz(active.zone)}
                 </span>
               </div>
               <h3 className="mt-2 text-xl font-bold text-white">
-                {active.name}
+                {tr(active, 'name')}
               </h3>
-              {active.instructions && (
+              {(active.instructions || active.instructions_es) && (
                 <p className="mt-2 text-base leading-relaxed text-[#e6e9f2]/85">
-                  {active.instructions}
+                  {tr(active, 'instructions')}
                 </p>
               )}
 
               <div className="mt-4 flex items-center gap-2 text-sm text-[#8a93a6]">
                 <Clock className="h-4 w-4" />
-                Elapsed {active.elapsed}
+                {t('home.elapsed', { time: active.elapsed })}
               </div>
 
               <div className="mt-5 grid grid-cols-3 gap-2">
@@ -89,7 +91,7 @@ export default function TechnicianHome() {
                 className="mt-3 flex min-h-[56px] w-full items-center justify-center gap-2 rounded-lg border border-[#60a5fa]/40 bg-[#60a5fa]/10 text-base font-bold text-[#60a5fa] active:bg-[#60a5fa]/20"
               >
                 <Camera className="h-5 w-5" />
-                Upload evidence photo
+                {t('home.uploadEvidencePhoto')}
               </button>
             </div>
           </div>
@@ -98,27 +100,27 @@ export default function TechnicianHome() {
 
       <section>
         <h2 className="mb-3 text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
-          Completed today ({completed.length})
+          {t('home.completedToday', { count: completed.length })}
         </h2>
         <div className="space-y-2">
-          {completed.map((t) => (
+          {completed.map((task) => (
             <div
-              key={t.id}
+              key={task.id}
               className="flex items-center gap-3 rounded-xl border border-[#262c3a] bg-[#161a23] p-3"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#22c55e]/10 text-[#22c55e]">
                 <Check className="h-5 w-5" strokeWidth={3} />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-white">{t.name}</p>
+                <p className="text-sm font-semibold text-white">{tr(task, 'name')}</p>
                 <p className="text-xs text-[#8a93a6]">
-                  {t.zone} · {t.elapsed}
+                  {tz(task.zone)} · {task.elapsed}
                 </p>
               </div>
             </div>
           ))}
           {completed.length === 0 && (
-            <p className="text-sm text-[#8a93a6]">No completed tasks yet.</p>
+            <p className="text-sm text-[#8a93a6]">{t('home.noCompletedYet')}</p>
           )}
         </div>
       </section>

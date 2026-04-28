@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Hash, Users } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
+import { useI18n } from '../../i18n/I18nContext'
 import { CHANNELS } from '../../data/sample'
 
 function visibleChannelsFor(user) {
@@ -24,15 +25,16 @@ function visibleChannelsFor(user) {
 
 export default function Messages() {
   const { user, role } = useAuth()
+  const { t, tr } = useI18n()
   const channels = visibleChannelsFor(user)
   const accent = role.accent
 
   return (
     <div className="space-y-5">
       <header>
-        <h1 className="text-2xl font-bold text-white">Messages</h1>
+        <h1 className="text-2xl font-bold text-white">{t('messages.title')}</h1>
         <p className="mt-0.5 text-sm text-[#8a93a6]">
-          Channels you have access to
+          {t('messages.subtitle')}
         </p>
       </header>
 
@@ -56,13 +58,13 @@ export default function Messages() {
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline justify-between gap-2">
                 <p className="truncate text-base font-semibold text-white">
-                  {c.name}
+                  {tr(c, 'name')}
                 </p>
                 <span className="shrink-0 text-xs text-[#8a93a6]">
-                  {c.time}
+                  {tr(c, 'time')}
                 </span>
               </div>
-              <p className="truncate text-sm text-[#8a93a6]">{c.last}</p>
+              <p className="truncate text-sm text-[#8a93a6]">{tr(c, 'last')}</p>
             </div>
             {c.unread > 0 && (
               <span

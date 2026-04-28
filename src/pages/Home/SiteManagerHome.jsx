@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
+import { useI18n } from '../../i18n/I18nContext'
 import { TASKS, TECHNICIANS, SITE_STATS } from '../../data/sample'
 
 const statusDot = {
@@ -17,36 +18,37 @@ const statusDot = {
   red: 'bg-[#ef4444]',
 }
 
-const statusTag = {
-  in_progress: { label: 'In progress', cls: 'text-[#60a5fa] bg-[#60a5fa]/10 border-[#60a5fa]/30' },
-  overdue: { label: 'Overdue', cls: 'text-[#f97316] bg-[#f97316]/10 border-[#f97316]/30' },
-  pending: { label: 'Pending', cls: 'text-[#8a93a6] bg-[#1d2230] border-[#262c3a]' },
-  pending_approval: { label: 'Awaiting QA', cls: 'text-[#fbbf24] bg-[#fbbf24]/10 border-[#fbbf24]/30' },
-  done: { label: 'Done', cls: 'text-[#22c55e] bg-[#22c55e]/10 border-[#22c55e]/30' },
+const statusCls = {
+  in_progress: 'text-[#60a5fa] bg-[#60a5fa]/10 border-[#60a5fa]/30',
+  overdue: 'text-[#f97316] bg-[#f97316]/10 border-[#f97316]/30',
+  pending: 'text-[#8a93a6] bg-[#1d2230] border-[#262c3a]',
+  pending_approval: 'text-[#fbbf24] bg-[#fbbf24]/10 border-[#fbbf24]/30',
+  done: 'text-[#22c55e] bg-[#22c55e]/10 border-[#22c55e]/30',
 }
 
 export default function SiteManagerHome() {
   const { user } = useAuth()
+  const { t, tr, tz, formatDate } = useI18n()
   const overdue = TASKS.filter((t) => t.status === 'overdue')
   const attention = TASKS.filter((t) =>
     ['overdue', 'pending_approval'].includes(t.status),
   )
 
   const stats = [
-    { label: 'Active technicians', value: SITE_STATS.activeTechnicians, icon: Users },
-    { label: 'Tasks today', value: SITE_STATS.tasksToday, icon: ListChecks },
-    { label: 'Reworks', value: SITE_STATS.reworks, icon: RotateCcw },
-    { label: 'Robots validated', value: SITE_STATS.robotsValidated, icon: Bot },
+    { label: t('home.activeTechnicians'), value: SITE_STATS.activeTechnicians, icon: Users },
+    { label: t('home.tasksToday'), value: SITE_STATS.tasksToday, icon: ListChecks },
+    { label: t('home.reworks'), value: SITE_STATS.reworks, icon: RotateCcw },
+    { label: t('home.robotsValidated'), value: SITE_STATS.robotsValidated, icon: Bot },
   ]
 
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-sm text-[#8a93a6]">Tuesday, April 28</p>
+        <p className="text-sm text-[#8a93a6]">{formatDate()}</p>
         <h1 className="mt-1 text-2xl font-bold text-white">
-          Good morning, {user.name.split(' ')[0]}
+          {t('home.greetingMorning', { name: user.name.split(' ')[0] })}
         </h1>
-        <p className="mt-0.5 text-sm text-[#60a5fa]">{user.project}</p>
+        <p className="mt-0.5 text-sm text-[#60a5fa]">{t('project')}</p>
       </header>
 
       {overdue.length > 0 && (
@@ -57,14 +59,16 @@ export default function SiteManagerHome() {
           <AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-[#f97316]" />
           <div className="flex-1">
             <p className="text-base font-semibold text-white">
-              {overdue.length} overdue task{overdue.length > 1 ? 's' : ''}
+              {overdue.length === 1
+                ? t('home.overdueOne', { count: overdue.length })
+                : t('home.overdueMany', { count: overdue.length })}
             </p>
             <p className="mt-0.5 text-sm text-[#e6e9f2]/80">
-              Tap to review and reassign.
+              {t('home.tapReview')}
             </p>
           </div>
           <span className="rounded-lg bg-[#f97316] px-3 py-2 text-sm font-semibold text-white">
-            Review
+            {t('home.review')}
           </span>
         </Link>
       )}
@@ -86,31 +90,31 @@ export default function SiteManagerHome() {
 
       <section>
         <h2 className="mb-3 text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
-          Requires attention
+          {t('home.requiresAttention')}
         </h2>
         <div className="space-y-3">
-          {attention.map((t) => (
+          {attention.map((task) => (
             <button
-              key={t.id}
+              key={task.id}
               type="button"
               className="flex w-full items-center gap-3 rounded-xl border border-[#262c3a] bg-[#161a23] p-4 text-left active:bg-[#1d2230]"
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono font-semibold text-[#8a93a6]">
-                    {t.id}
+                    {task.id}
                   </span>
                   <span
-                    className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase ${statusTag[t.status].cls}`}
+                    className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase ${statusCls[task.status]}`}
                   >
-                    {statusTag[t.status].label}
+                    {t(`status.${task.status}`)}
                   </span>
                 </div>
                 <p className="mt-1.5 text-base font-semibold text-white">
-                  {t.name}
+                  {tr(task, 'name')}
                 </p>
                 <p className="mt-0.5 text-sm text-[#8a93a6]">
-                  {t.assignee} · {t.zone}
+                  {task.assignee} · {tz(task.zone)}
                 </p>
               </div>
               <ChevronRight className="h-5 w-5 text-[#8a93a6]" />
@@ -121,33 +125,33 @@ export default function SiteManagerHome() {
 
       <section>
         <h2 className="mb-3 text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
-          Active technicians
+          {t('home.activeTechnicians')}
         </h2>
         <div className="overflow-hidden rounded-xl border border-[#262c3a] bg-[#161a23]">
-          {TECHNICIANS.map((t, i) => (
+          {TECHNICIANS.map((tech, i) => (
             <div
-              key={t.id}
+              key={tech.id}
               className={`flex items-center gap-3 p-4 ${i > 0 ? 'border-t border-[#262c3a]' : ''}`}
             >
               <div className="relative">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1d2230] text-sm font-semibold text-white">
-                  {t.initials}
+                  {tech.initials}
                 </div>
                 <span
-                  className={`absolute right-0 bottom-0 h-3 w-3 rounded-full ring-2 ring-[#161a23] ${statusDot[t.status]}`}
+                  className={`absolute right-0 bottom-0 h-3 w-3 rounded-full ring-2 ring-[#161a23] ${statusDot[tech.status]}`}
                 />
               </div>
               <div className="flex-1 overflow-hidden">
                 <p className="truncate text-base font-semibold text-white">
-                  {t.name}
+                  {tech.name}
                 </p>
                 <p className="truncate text-sm text-[#8a93a6]">
-                  {t.currentTask}
+                  {tr(tech, 'currentTask')}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-semibold text-white">{t.activeFor}</p>
-                <p className="text-xs text-[#8a93a6]">{t.zone}</p>
+                <p className="text-sm font-semibold text-white">{tech.activeFor}</p>
+                <p className="text-xs text-[#8a93a6]">{tz(tech.zone)}</p>
               </div>
             </div>
           ))}
@@ -156,11 +160,11 @@ export default function SiteManagerHome() {
 
       <button
         type="button"
-        aria-label="New task"
+        aria-label={t('home.newTask')}
         className="fixed right-5 bottom-24 z-30 flex h-14 items-center gap-2 rounded-full bg-[#f97316] px-5 text-base font-bold text-white shadow-lg shadow-[#f97316]/30 active:bg-[#ea6a0c]"
       >
         <Plus className="h-6 w-6" strokeWidth={2.5} />
-        New Task
+        {t('home.newTask')}
       </button>
     </div>
   )

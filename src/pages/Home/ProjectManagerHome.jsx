@@ -1,32 +1,36 @@
 import { Download, TrendingUp, RotateCcw, Timer, Bot } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
+import { useI18n } from '../../i18n/I18nContext'
 import { PROJECT_STATS } from '../../data/sample'
 
 export default function ProjectManagerHome() {
   const { user } = useAuth()
+  const { t, tz } = useI18n()
   const s = PROJECT_STATS
 
   const stats = [
-    { label: 'Tasks completed', value: `${s.tasksCompleted} / ${s.tasksTotal}`, icon: TrendingUp },
-    { label: 'Rework rate', value: `${s.reworkPercent}%`, icon: RotateCcw },
-    { label: 'Avg / robot', value: `${s.avgRobotMinutes}m`, icon: Timer },
-    { label: 'Robots validated', value: `${s.robotsValidated} / ${s.robotsTotal}`, icon: Bot },
+    { label: t('home.tasksCompleted'), value: `${s.tasksCompleted} / ${s.tasksTotal}`, icon: TrendingUp },
+    { label: t('home.reworkRate'), value: `${s.reworkPercent}%`, icon: RotateCcw },
+    { label: t('home.avgRobot'), value: `${s.avgRobotMinutes}m`, icon: Timer },
+    { label: t('home.robotsValidatedShort'), value: `${s.robotsValidated} / ${s.robotsTotal}`, icon: Bot },
   ]
 
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-sm text-[#8a93a6]">Executive view · {user.name}</p>
+        <p className="text-sm text-[#8a93a6]">
+          {t('home.executiveView', { name: user.name })}
+        </p>
         <h1 className="mt-1 text-2xl font-bold text-white">{s.name}</h1>
         <p className="mt-0.5 text-sm" style={{ color: '#a78bfa' }}>
-          Week {s.week} of {s.totalWeeks}
+          {t('home.weekOf', { week: s.week, total: s.totalWeeks })}
         </p>
       </header>
 
       <section className="rounded-xl border border-[#262c3a] bg-[#161a23] p-5">
         <div className="flex items-baseline justify-between">
           <p className="text-sm font-semibold text-[#8a93a6] uppercase tracking-wide">
-            Overall progress
+            {t('home.overallProgress')}
           </p>
           <p className="text-2xl font-bold text-white">{s.progress}%</p>
         </div>
@@ -40,7 +44,7 @@ export default function ProjectManagerHome() {
           />
         </div>
         <p className="mt-2 text-xs text-[#8a93a6]">
-          On track to validate all {s.robotsTotal} robots by week {s.totalWeeks}.
+          {t('home.onTrack', { count: s.robotsTotal, week: s.totalWeeks })}
         </p>
       </section>
 
@@ -61,13 +65,13 @@ export default function ProjectManagerHome() {
 
       <section>
         <h2 className="mb-3 text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
-          Progress by zone
+          {t('home.progressByZone')}
         </h2>
         <div className="space-y-3 rounded-xl border border-[#262c3a] bg-[#161a23] p-4">
           {s.zoneProgress.map((z) => (
             <div key={z.zone}>
               <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-white">{z.zone}</p>
+                <p className="text-sm font-semibold text-white">{tz(z.zone)}</p>
                 <p className="text-sm font-bold text-[#a78bfa]">{z.percent}%</p>
               </div>
               <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-[#1d2230]">
@@ -83,26 +87,26 @@ export default function ProjectManagerHome() {
 
       <section>
         <h2 className="mb-3 text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
-          Top technicians
+          {t('home.topTechnicians')}
         </h2>
         <div className="overflow-hidden rounded-xl border border-[#262c3a] bg-[#161a23]">
-          {s.topTechnicians.map((t, i) => (
+          {s.topTechnicians.map((tech, i) => (
             <div
-              key={t.name}
+              key={tech.name}
               className={`flex items-center gap-3 p-4 ${i > 0 ? 'border-t border-[#262c3a]' : ''}`}
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a78bfa]/10 text-sm font-bold text-[#a78bfa]">
                 {i + 1}
               </div>
               <div className="flex-1">
-                <p className="text-base font-semibold text-white">{t.name}</p>
+                <p className="text-base font-semibold text-white">{tech.name}</p>
                 <p className="text-sm text-[#8a93a6]">
-                  {t.tasksDone} tasks done
+                  {t('home.tasksDone', { count: tech.tasksDone })}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold text-white">{t.score}</p>
-                <p className="text-xs text-[#8a93a6]">score</p>
+                <p className="text-lg font-bold text-white">{tech.score}</p>
+                <p className="text-xs text-[#8a93a6]">{t('home.score')}</p>
               </div>
             </div>
           ))}
@@ -115,7 +119,7 @@ export default function ProjectManagerHome() {
         style={{ backgroundColor: '#a78bfa', boxShadow: '0 10px 25px -5px rgba(167,139,250,0.4)' }}
       >
         <Download className="h-5 w-5" />
-        Export report
+        {t('home.exportReport')}
       </button>
     </div>
   )

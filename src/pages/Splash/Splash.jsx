@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
+import { useI18n } from '../../i18n/I18nContext'
 
 export default function Splash() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useI18n()
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -18,9 +20,9 @@ export default function Splash() {
       <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#60a5fa] text-3xl font-black text-[#0f1117] shadow-lg shadow-[#60a5fa]/30">
         S
       </div>
-      <p className="mt-6 text-2xl font-bold tracking-tight">Synora</p>
+      <p className="mt-6 text-2xl font-bold tracking-tight">{t('appName')}</p>
       <p className="mt-1 text-sm font-medium uppercase tracking-[0.3em] text-[#8a93a6]">
-        Industrial Operations
+        {t('appTagline')}
       </p>
       <div className="mt-10 flex gap-1.5">
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#60a5fa]" />

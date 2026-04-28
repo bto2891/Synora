@@ -27,12 +27,19 @@ Synora is a mobile-first React app for industrial operations on the GM Silao pro
 - `/` (layout) — `Home`, `/tasks`, `/messages`, `/messages/:channelId`, `/warehouse`, `/profile`
 
 ## Project Layout
-- `src/main.jsx` — bootstraps React + AuthProvider + Router
+- `src/main.jsx` — bootstraps React + AuthProvider + I18nProvider + Router
 - `src/App.jsx` — route table
 - `src/components/layout/` — `Layout`, `Header` (role-accent bar/badge), `BottomNav` (5 tabs)
 - `src/pages/Splash`, `Login`, `Home`, `Tasks`, `Messages`, `Warehouse`, `Profile`
 - `src/pages/Home/` — dispatcher + 5 role-specific home files
-- `src/data/sample.js` — sample zones, technicians, tasks, approvals, channels, messages, warehouse stock
+- `src/data/sample.js` — sample zones, technicians, tasks, approvals, channels, messages, warehouse stock; user-facing strings have `_es` siblings (e.g. `name`/`name_es`) consumed via `tr()`
+
+## Internationalization (EN / ES)
+- English is the default; Spanish is the secondary language. Toggle in Profile → Language.
+- `src/i18n/dict.js` — full EN + ES dictionaries (nav, common, roles, zones, status, login, home, tasks, messages, warehousePage, profile)
+- `src/i18n/I18nContext.jsx` — provides `lang`, `setLang`, `t(key, vars)`, `tr(obj, key)`, `tz(zone)`, `formatDate(date?)`. Persists choice in `localStorage` under `synora.lang`. Supports `?lang=en|es` URL override.
+- `tr(obj, 'name')` returns `obj.name_es` when lang is `es`, else `obj.name`. Used for role-themed labels coming from data.
+- `tz('Zone A')` translates display text only; underlying string values are unchanged so filtering by `zone === 'Zone A'` keeps working.
 
 ## Replit Setup
 - Workflow `Start application` runs `npm run dev` and serves the app on port 5000
