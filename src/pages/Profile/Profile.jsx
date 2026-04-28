@@ -68,7 +68,7 @@ export default function Profile() {
               App language
             </p>
             <div className="flex overflow-hidden rounded-lg border border-[#262c3a]">
-              {['ES', 'EN'].map((l) => (
+              {['EN', 'ES'].map((l) => (
                 <button
                   key={l}
                   type="button"
