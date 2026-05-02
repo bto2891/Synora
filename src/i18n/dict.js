@@ -102,6 +102,7 @@ export const DICT = {
       confirmReject: 'Confirm Reject',
       reworkBadge: 'Rework required',
       reworkReason: 'Reason: {reason}',
+      physicalNotice: 'Before approving, verify physically at the location that the work was done correctly. Your approval confirms both digital and physical validation.',
     },
 
     home: {
@@ -454,6 +455,7 @@ export const DICT = {
       confirmReject: 'Confirmar rechazo',
       reworkBadge: 'Requiere retrabajo',
       reworkReason: 'Motivo: {reason}',
+      physicalNotice: 'Antes de aprobar, verifica físicamente en el lugar que el trabajo se realizó correctamente. Tu aprobación confirma la validación digital y física.',
     },
 
     home: {

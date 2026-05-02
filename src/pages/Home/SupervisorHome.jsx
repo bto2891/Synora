@@ -332,7 +332,14 @@ export default function SupervisorHome() {
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-3 flex gap-2">
+                    <div className="mt-3 space-y-2">
+                      <div className="flex items-start gap-2 rounded-lg px-3 py-2.5" style={{ backgroundColor: '#451a03' }}>
+                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: '#f97316' }} />
+                        <p className="text-[12px] leading-snug" style={{ color: '#f97316' }}>
+                          {t('review.physicalNotice')}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => approveTask(task.id)}
@@ -349,6 +356,7 @@ export default function SupervisorHome() {
                         <X className="h-5 w-5" strokeWidth={3} />
                         {t('home.reject')}
                       </button>
+                      </div>
                     </div>
                   )}
                 </div>
