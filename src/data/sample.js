@@ -1,4 +1,14 @@
 export const ZONES = ['Zone A', 'Zone B', 'Zone C']
+export const ASSIGN_ZONES = ['Zone A', 'Zone B', 'Zone C', 'Zone D', 'Zone E']
+
+export const ASSIGN_TECHNICIANS = [
+  { id: 'atech-diego',  name: 'Diego Ramos',    initials: 'DR' },
+  { id: 'atech-pedro',  name: 'Pedro Reyes',    initials: 'PR' },
+  { id: 'atech-carlos', name: 'Carlos Medina',  initials: 'CM' },
+  { id: 'atech-ana',    name: 'Ana Lara',       initials: 'AL' },
+  { id: 'atech-juan',   name: 'Juan Torres',    initials: 'JT' },
+  { id: 'atech-miguel', name: 'Miguel Garcia',  initials: 'MG' },
+]
 
 export const TECHNICIANS = [
   { id: 't1', name: 'Diego Ramos', initials: 'DR', zone: 'Zone A', currentTask: 'Robot KUKA-12 cabling', currentTask_es: 'Cableado robot KUKA-12', activeFor: '1h 24m', status: 'green', tasksDone: 38 },
@@ -104,4 +114,189 @@ export const SITE_STATS = {
   tasksToday: 24,
   reworks: 3,
   robotsValidated: '14 / 48',
+}
+
+export const TOOL_REQUESTS = [
+  {
+    id: 'TR-01',
+    item: 'Power harness 4ft',
+    item_es: 'Arnés de potencia 4ft',
+    sku: 'HRN-PWR',
+    qty: 1,
+    technicianId: 'u-tech',
+    technician: 'Diego Ramos',
+    technicianInitials: 'DR',
+    taskId: 'T-2418',
+    task: 'Cabling robot KUKA-12',
+    task_es: 'Cableado robot KUKA-12',
+    status: 'delivered',
+    requestedAt: '2026-04-28T07:25:00',
+    deliveredAt: '2026-04-28T07:40:00',
+    returnedAt: null,
+  },
+  {
+    id: 'TR-02',
+    item: 'M8 hex bolts',
+    item_es: 'Tornillos hex M8',
+    sku: 'BOLT-M8',
+    qty: 24,
+    technicianId: 'u-tech',
+    technician: 'Diego Ramos',
+    technicianInitials: 'DR',
+    taskId: 'T-2418',
+    task: 'Cabling robot KUKA-12',
+    task_es: 'Cableado robot KUKA-12',
+    status: 'pending',
+    requestedAt: '2026-04-28T08:42:00',
+    deliveredAt: null,
+    returnedAt: null,
+  },
+  {
+    id: 'TR-03',
+    item: 'Welding tip 1.6mm',
+    item_es: 'Punta de soldadura 1.6mm',
+    sku: 'WTIP-16',
+    qty: 2,
+    technicianId: 'u-tech',
+    technician: 'Diego Ramos',
+    technicianInitials: 'DR',
+    taskId: 'T-2401',
+    task: 'Install safety fence panel',
+    task_es: 'Instalar panel de seguridad',
+    status: 'returned',
+    requestedAt: '2026-04-27T12:30:00',
+    deliveredAt: '2026-04-27T12:55:00',
+    returnedAt: '2026-04-27T16:45:00',
+  },
+  {
+    id: 'TR-04',
+    item: 'Ethernet cable Cat6',
+    item_es: 'Cable Ethernet Cat6',
+    sku: 'CBL-CAT6',
+    qty: 2,
+    technicianId: 'u-other1',
+    technician: 'Ana Castillo',
+    technicianInitials: 'AC',
+    taskId: 'T-2422',
+    task: 'Load PLC firmware v2.4',
+    task_es: 'Cargar firmware PLC v2.4',
+    status: 'delivered',
+    requestedAt: '2026-04-27T05:00:00',
+    deliveredAt: '2026-04-27T05:20:00',
+    returnedAt: null,
+  },
+  {
+    id: 'TR-05',
+    item: 'Welding tip 1.6mm',
+    item_es: 'Punta de soldadura 1.6mm',
+    sku: 'WTIP-16',
+    qty: 4,
+    technicianId: 'u-other2',
+    technician: 'Andrea Vega',
+    technicianInitials: 'AV',
+    taskId: 'T-2420',
+    task: 'Weld test fixture WL-7',
+    task_es: 'Prueba de soldadura WL-7',
+    status: 'pending',
+    requestedAt: '2026-04-28T08:37:00',
+    deliveredAt: null,
+    returnedAt: null,
+  },
+  {
+    id: 'TR-06',
+    item: 'Pneumatic valve VL-3',
+    item_es: 'Válvula neumática VL-3',
+    sku: 'VLV-VL3',
+    qty: 1,
+    technicianId: 'u-other3',
+    technician: 'Tomas Ortiz',
+    technicianInitials: 'TO',
+    taskId: 'T-2421',
+    task: 'Bolt down station ST-09',
+    task_es: 'Anclar estación ST-09',
+    status: 'pending',
+    requestedAt: '2026-04-28T07:48:00',
+    deliveredAt: null,
+    returnedAt: null,
+  },
+  {
+    id: 'TR-07',
+    item: 'Proximity sensor',
+    item_es: 'Sensor de proximidad',
+    sku: 'SNS-PRX',
+    qty: 1,
+    technicianId: 'u-other4',
+    technician: 'Pedro Solis',
+    technicianInitials: 'PS',
+    taskId: 'T-2412',
+    task: 'Replace pneumatic valve',
+    task_es: 'Reemplazar válvula neumática',
+    status: 'delivered',
+    requestedAt: '2026-04-28T05:50:00',
+    deliveredAt: '2026-04-28T06:08:00',
+    returnedAt: null,
+  },
+]
+
+// ─── Vehicles ────────────────────────────────────────────────────────────────
+
+export const VEHICLES = [
+  { id: 'VH-01', plate: 'SIL-001', type: 'Pickup', type_es: 'Camioneta', make: 'Ford F-150', year: 2023, status: 'available', zone: 'Zone A', mileage: 12400, lastService: '2026-02-15', assignedTo: null, assignedToInitials: null },
+  { id: 'VH-02', plate: 'SIL-002', type: 'Van', type_es: 'Furgoneta', make: 'Mercedes Sprinter', year: 2022, status: 'in_use', zone: 'Zone B', mileage: 28750, lastService: '2026-01-20', assignedTo: 'Diego Ramos', assignedToInitials: 'DR' },
+  { id: 'VH-03', plate: 'SIL-003', type: 'Forklift', type_es: 'Montacargas', make: 'Toyota 8FGU25', year: 2021, status: 'maintenance', zone: 'Warehouse', mileage: 3200, lastService: '2026-03-01', assignedTo: null, assignedToInitials: null },
+  { id: 'VH-04', plate: 'SIL-004', type: 'Pickup', type_es: 'Camioneta', make: 'Chevy Silverado', year: 2022, status: 'available', zone: 'Zone C', mileage: 19800, lastService: '2026-03-10', assignedTo: null, assignedToInitials: null },
+  { id: 'VH-05', plate: 'SIL-005', type: 'Van', type_es: 'Furgoneta', make: 'Ford Transit', year: 2023, status: 'available', zone: 'Zone A', mileage: 8100, lastService: '2026-04-01', assignedTo: null, assignedToInitials: null },
+  { id: 'VH-06', plate: 'SIL-006', type: 'Forklift', type_es: 'Montacargas', make: 'Crown FC5250', year: 2020, status: 'in_use', zone: 'Zone B', mileage: 5450, lastService: '2026-02-28', assignedTo: 'Andrea Vega', assignedToInitials: 'AV' },
+  { id: 'VH-07', plate: 'SIL-007', type: 'Pickup', type_es: 'Camioneta', make: 'Dodge Ram 1500', year: 2021, status: 'reserved', zone: 'Zone D', mileage: 31200, lastService: '2026-01-05', assignedTo: null, assignedToInitials: null },
+  { id: 'VH-08', plate: 'SIL-008', type: 'SUV', type_es: 'SUV', make: 'Toyota 4Runner', year: 2023, status: 'available', zone: 'Zone E', mileage: 5300, lastService: '2026-04-10', assignedTo: null, assignedToInitials: null },
+  { id: 'VH-09', plate: 'SIL-009', type: 'Forklift', type_es: 'Montacargas', make: 'Hyster H2.5FT', year: 2019, status: 'maintenance', zone: 'Warehouse', mileage: 7800, lastService: '2026-03-20', assignedTo: null, assignedToInitials: null },
+  { id: 'VH-10', plate: 'SIL-010', type: 'Van', type_es: 'Furgoneta', make: 'Nissan NV200', year: 2022, status: 'in_use', zone: 'Zone C', mileage: 22100, lastService: '2026-02-10', assignedTo: 'Ana Castillo', assignedToInitials: 'AC' },
+  { id: 'VH-11', plate: 'SIL-011', type: 'Pickup', type_es: 'Camioneta', make: 'Toyota Tacoma', year: 2023, status: 'available', zone: 'Zone B', mileage: 6700, lastService: '2026-04-05', assignedTo: null, assignedToInitials: null },
+  { id: 'VH-12', plate: 'SIL-012', type: 'SUV', type_es: 'SUV', make: 'Chevy Tahoe', year: 2022, status: 'reserved', zone: 'Zone D', mileage: 14900, lastService: '2026-03-15', assignedTo: null, assignedToInitials: null },
+]
+
+export const VEHICLE_REQUESTS = [
+  { id: 'VR-01', vehicleId: 'VH-05', vehicle: 'Ford Transit (SIL-005)', technicianId: 'u-tech', technician: 'Diego Ramos', technicianInitials: 'DR', purpose: 'Transport tools to Zone A staging area', purpose_es: 'Transportar herramientas al área de almacenaje Zona A', taskId: 'T-2418', status: 'pending', requestedAt: '2026-04-28T08:00:00', approvedAt: null, returnedAt: null },
+  { id: 'VR-02', vehicleId: 'VH-01', vehicle: 'Ford F-150 (SIL-001)', technicianId: 'u-other1', technician: 'Ana Castillo', technicianInitials: 'AC', purpose: 'Equipment delivery Zone C', purpose_es: 'Entrega de equipo Zona C', taskId: 'T-2422', status: 'approved', requestedAt: '2026-04-28T07:00:00', approvedAt: '2026-04-28T07:30:00', returnedAt: null },
+  { id: 'VR-03', vehicleId: 'VH-04', vehicle: 'Chevy Silverado (SIL-004)', technicianId: 'u-other2', technician: 'Pedro Solis', technicianInitials: 'PS', purpose: 'Haul pneumatic components', purpose_es: 'Trasladar componentes neumáticos', taskId: 'T-2412', status: 'pending', requestedAt: '2026-04-28T08:15:00', approvedAt: null, returnedAt: null },
+  { id: 'VR-04', vehicleId: 'VH-02', vehicle: 'Mercedes Sprinter (SIL-002)', technicianId: 'u-tech', technician: 'Diego Ramos', technicianInitials: 'DR', purpose: 'Pick up cable spools', purpose_es: 'Recoger bobinas de cable', taskId: 'T-2418', status: 'returned', requestedAt: '2026-04-27T10:00:00', approvedAt: '2026-04-27T10:15:00', returnedAt: '2026-04-27T14:30:00' },
+  { id: 'VR-05', vehicleId: 'VH-08', vehicle: 'Toyota 4Runner (SIL-008)', technicianId: 'u-other3', technician: 'Tomas Ortiz', technicianInitials: 'TO', purpose: 'Site inspection Zone E', purpose_es: 'Inspección en Zona E', taskId: 'T-2421', status: 'pending', requestedAt: '2026-04-28T09:00:00', approvedAt: null, returnedAt: null },
+  { id: 'VR-06', vehicleId: 'VH-11', vehicle: 'Toyota Tacoma (SIL-011)', technicianId: 'u-other4', technician: 'Andrea Vega', technicianInitials: 'AV', purpose: 'Weld fixture transport Zone B', purpose_es: 'Transporte de accesorio de soldadura Zona B', taskId: 'T-2420', status: 'approved', requestedAt: '2026-04-28T06:30:00', approvedAt: '2026-04-28T07:00:00', returnedAt: null },
+]
+
+// ─── Physical Inspections ────────────────────────────────────────────────────
+
+export const PHYSICAL_INSPECTIONS = [
+  { id: 'PI-01', taskId: 'T-2401', task: 'Install safety fence panel', task_es: 'Instalar panel de seguridad', technician: 'Diego Ramos', zone: 'Zone A', result: 'pass', notes: 'All bolts torqued to spec. Panel aligned.', notes_es: 'Todos los tornillos al torque. Panel alineado.', inspectedBy: 'Marco Alvarez', inspectedAt: '2026-04-28T08:45:00' },
+  { id: 'PI-02', taskId: 'T-2398', task: 'Verify e-stop circuit', task_es: 'Verificar circuito de paro', technician: 'Diego Ramos', zone: 'Zone A', result: 'pass', notes: 'E-stop tested x3. Response time <200ms.', notes_es: 'Paro de emergencia probado x3. Tiempo de respuesta <200ms.', inspectedBy: 'Marco Alvarez', inspectedAt: '2026-04-28T09:00:00' },
+]
+
+// ─── Delivery Queue ──────────────────────────────────────────────────────────
+
+export const DELIVERY_QUEUE_ITEMS = [
+  { id: 'DQ-01', title: 'KUKA-12 Harness Kit', title_es: 'Kit arnés KUKA-12', taskId: 'T-2418', zone: 'Zone A', technician: 'Diego Ramos', technicianInitials: 'DR', priority: 'urgent', column: 'in_progress', updatedAt: '2026-04-28T08:00:00' },
+  { id: 'DQ-02', title: 'PLC Cabinet Z-C', title_es: 'Gabinete PLC Z-C', taskId: 'T-2422', zone: 'Zone C', technician: 'Ana Castillo', technicianInitials: 'AC', priority: 'normal', column: 'in_review', updatedAt: '2026-04-28T07:30:00' },
+  { id: 'DQ-03', title: 'Safety Fence Section 3', title_es: 'Sección 3 barda de seguridad', taskId: 'T-2401', zone: 'Zone A', technician: 'Diego Ramos', technicianInitials: 'DR', priority: 'normal', column: 'ready_to_deliver', updatedAt: '2026-04-28T06:45:00' },
+  { id: 'DQ-04', title: 'E-Stop Module WL-7', title_es: 'Módulo paro emergencia WL-7', taskId: 'T-2420', zone: 'Zone B', technician: 'Andrea Vega', technicianInitials: 'AV', priority: 'urgent', column: 'ready_to_deliver', updatedAt: '2026-04-28T07:10:00' },
+  { id: 'DQ-05', title: 'Sensor Bracket KUKA-08', title_es: 'Soporte sensor KUKA-08', taskId: 'T-2398', zone: 'Zone A', technician: 'Diego Ramos', technicianInitials: 'DR', priority: 'normal', column: 'delivered', updatedAt: '2026-04-27T16:00:00' },
+  { id: 'DQ-06', title: 'Pneumatic Manifold B-4', title_es: 'Múltiple neumático B-4', taskId: 'T-2421', zone: 'Zone B', technician: 'Tomas Ortiz', technicianInitials: 'TO', priority: 'normal', column: 'in_progress', updatedAt: '2026-04-28T08:20:00' },
+  { id: 'DQ-07', title: 'Cable Tray Row 3', title_es: 'Charola de cable fila 3', taskId: 'T-2407', zone: 'Zone A', technician: 'Lucia Mendez', technicianInitials: 'LM', priority: 'normal', column: 'in_review', updatedAt: '2026-04-28T07:55:00' },
+  { id: 'DQ-08', title: 'Proximity Sensor Array', title_es: 'Arreglo sensor de proximidad', taskId: 'T-2412', zone: 'Zone A', technician: 'Pedro Solis', technicianInitials: 'PS', priority: 'urgent', column: 'delivered', updatedAt: '2026-04-27T15:30:00' },
+]
+
+// ─── Gamification Seed ───────────────────────────────────────────────────────
+
+export const GAMIFICATION_SEED = {
+  'u-tech': {
+    points: 145,
+    streak: 3,
+    badges: ['speed_runner', 'reliable'],
+    history: [
+      { action: 'task_complete', points: 10, label: 'Install safety fence panel', at: '2026-04-27T16:00:00' },
+      { action: 'task_on_time', points: 5, label: 'Bonus: on time', at: '2026-04-27T16:00:00' },
+      { action: 'task_complete', points: 10, label: 'Verify e-stop circuit', at: '2026-04-27T09:00:00' },
+      { action: 'urgent_task', points: 15, label: 'Urgent task: KUKA-12', at: '2026-04-26T14:00:00' },
+      { action: 'task_complete', points: 10, label: 'Bolt torque inspection', at: '2026-04-26T11:00:00' },
+    ],
+  },
 }

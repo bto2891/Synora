@@ -29,6 +29,12 @@ export const ROLES = {
     accent: '#a78bfa',
     accentBg: 'rgba(167,139,250,0.12)',
   },
+  fleet_manager: {
+    id: 'fleet_manager',
+    label: 'Fleet Manager',
+    accent: '#fb923c',
+    accentBg: 'rgba(251,146,60,0.12)',
+  },
 }
 
 export const ROLE_LIST = Object.values(ROLES)
@@ -71,6 +77,14 @@ export const DEMO_USERS = {
     name: 'Hector Beltran',
     initials: 'HB',
     role: 'project_manager',
+    project: 'GM Silao Project',
+    zone: 'All zones',
+  },
+  fleet_manager: {
+    id: 'u-fleet',
+    name: 'Carlos Ruiz',
+    initials: 'CR',
+    role: 'fleet_manager',
     project: 'GM Silao Project',
     zone: 'All zones',
   },

@@ -4,6 +4,7 @@ import SupervisorHome from './SupervisorHome'
 import TechnicianHome from './TechnicianHome'
 import WarehouseHome from './WarehouseHome'
 import ProjectManagerHome from './ProjectManagerHome'
+import FleetManagerHome from './FleetManagerHome'
 
 export default function Home() {
   const { user } = useAuth()
@@ -19,6 +20,8 @@ export default function Home() {
       return <WarehouseHome />
     case 'project_manager':
       return <ProjectManagerHome />
+    case 'fleet_manager':
+      return <FleetManagerHome />
     default:
       return null
   }

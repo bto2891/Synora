@@ -6,11 +6,15 @@ import {
   Bot,
   Plus,
   ChevronRight,
+  Zap,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
 import { useI18n } from '../../i18n/I18nContext'
-import { TASKS, TECHNICIANS, SITE_STATS } from '../../data/sample'
+import { TECHNICIANS, SITE_STATS } from '../../data/sample'
+import { useTasks } from '../../context/TaskContext'
+import { useGamification } from '../../gamification/GamificationContext'
+import { usePhysicalInspection } from '../../context/PhysicalInspectionContext'
 
 const statusDot = {
   green: 'bg-[#22c55e]',
@@ -19,19 +23,23 @@ const statusDot = {
 }
 
 const statusCls = {
-  in_progress: 'text-[#60a5fa] bg-[#60a5fa]/10 border-[#60a5fa]/30',
-  overdue: 'text-[#f97316] bg-[#f97316]/10 border-[#f97316]/30',
-  pending: 'text-[#8a93a6] bg-[#1d2230] border-[#262c3a]',
+  in_progress:      'text-[#60a5fa] bg-[#60a5fa]/10 border-[#60a5fa]/30',
+  overdue:          'text-[#f97316] bg-[#f97316]/10 border-[#f97316]/30',
+  pending:          'text-[#8a93a6] bg-[#1d2230] border-[#262c3a]',
   pending_approval: 'text-[#fbbf24] bg-[#fbbf24]/10 border-[#fbbf24]/30',
-  done: 'text-[#22c55e] bg-[#22c55e]/10 border-[#22c55e]/30',
+  done:             'text-[#22c55e] bg-[#22c55e]/10 border-[#22c55e]/30',
+  rework:           'text-[#ef4444] bg-[#ef4444]/10 border-[#ef4444]/30',
 }
 
 export default function SiteManagerHome() {
   const { user } = useAuth()
   const { t, tr, tz, formatDate } = useI18n()
-  const overdue = TASKS.filter((t) => t.status === 'overdue')
-  const attention = TASKS.filter((t) =>
-    ['overdue', 'pending_approval'].includes(t.status),
+  const { tasks } = useTasks()
+  const { teamSummary } = useGamification()
+  const { inspections } = usePhysicalInspection()
+  const overdue = tasks.filter((t) => t.status === 'overdue')
+  const attention = tasks.filter((t) =>
+    ['overdue', 'pending_approval', 'rework'].includes(t.status),
   )
 
   const stats = [
@@ -93,33 +101,46 @@ export default function SiteManagerHome() {
           {t('home.requiresAttention')}
         </h2>
         <div className="space-y-3">
-          {attention.map((task) => (
-            <button
-              key={task.id}
-              type="button"
-              className="flex w-full items-center gap-3 rounded-xl border border-[#262c3a] bg-[#161a23] p-4 text-left active:bg-[#1d2230]"
-            >
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-semibold text-[#8a93a6]">
-                    {task.id}
-                  </span>
-                  <span
-                    className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase ${statusCls[task.status]}`}
-                  >
-                    {t(`status.${task.status}`)}
-                  </span>
+          {attention.map((task) => {
+            const pi = inspections.find((i) => i.taskId === task.id)
+            return (
+              <button
+                key={task.id}
+                type="button"
+                className="flex w-full items-center gap-3 rounded-xl border border-[#262c3a] bg-[#161a23] p-4 text-left active:bg-[#1d2230]"
+              >
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-mono font-semibold text-[#8a93a6]">
+                      {task.id}
+                    </span>
+                    <span
+                      className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase ${statusCls[task.status]}`}
+                    >
+                      {t(`status.${task.status}`)}
+                    </span>
+                    {task.status === 'done' && (
+                      <span className="rounded-md border border-[#22c55e]/30 bg-[#22c55e]/10 px-2 py-0.5 text-[10px] font-bold text-[#22c55e]">
+                        {t('inspection.digital')}
+                      </span>
+                    )}
+                    {pi && (
+                      <span className={`rounded-md border px-2 py-0.5 text-[10px] font-bold ${pi.result === 'pass' ? 'border-[#22c55e]/30 bg-[#22c55e]/10 text-[#22c55e]' : 'border-[#ef4444]/30 bg-[#ef4444]/10 text-[#ef4444]'}`}>
+                        {pi.result === 'pass' ? t('inspection.physical') : t('inspection.physicalFail')}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1.5 text-base font-semibold text-white">
+                    {tr(task, 'name')}
+                  </p>
+                  <p className="mt-0.5 text-sm text-[#8a93a6]">
+                    {task.assignee} · {tz(task.zone)}
+                  </p>
                 </div>
-                <p className="mt-1.5 text-base font-semibold text-white">
-                  {tr(task, 'name')}
-                </p>
-                <p className="mt-0.5 text-sm text-[#8a93a6]">
-                  {task.assignee} · {tz(task.zone)}
-                </p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-[#8a93a6]" />
-            </button>
-          ))}
+                <ChevronRight className="h-5 w-5 text-[#8a93a6]" />
+              </button>
+            )
+          })}
         </div>
       </section>
 
@@ -157,6 +178,43 @@ export default function SiteManagerHome() {
           ))}
         </div>
       </section>
+
+      {/* ── Team Gamification ── */}
+      {teamSummary.length > 0 && (
+        <section>
+          <div className="mb-3 flex items-center gap-2">
+            <h2 className="text-sm font-semibold tracking-wide text-[#8a93a6] uppercase">
+              {t('gamification.teamPoints')}
+            </h2>
+            <Zap className="h-4 w-4 text-[#fbbf24]" />
+          </div>
+          <div className="overflow-hidden rounded-xl border border-[#262c3a] bg-[#161a23]">
+            {teamSummary
+              .sort((a, b) => b.points - a.points)
+              .map((member, i) => (
+                <div
+                  key={member.id}
+                  className={`flex items-center gap-3 p-4 ${i > 0 ? 'border-t border-[#262c3a]' : ''}`}
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fbbf24]/10 text-xs font-bold text-[#fbbf24]">
+                    {i + 1}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-white">{member.id}</p>
+                    {member.streak > 0 && (
+                      <p className="text-xs text-[#8a93a6]">
+                        {t('gamification.streak', { n: member.streak })}
+                      </p>
+                    )}
+                  </div>
+                  <p className="text-sm font-bold text-[#fbbf24]">
+                    {member.points} {t('gamification.pts')}
+                  </p>
+                </div>
+              ))}
+          </div>
+        </section>
+      )}
 
       <button
         type="button"

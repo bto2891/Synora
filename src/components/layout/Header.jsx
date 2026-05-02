@@ -1,11 +1,18 @@
-import { Bell } from 'lucide-react'
+import { Bell, RefreshCcw } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
 import { useI18n } from '../../i18n/I18nContext'
 
 export default function Header() {
-  const { user, role } = useAuth()
+  const { user, role, logout } = useAuth()
   const { t } = useI18n()
+  const navigate = useNavigate()
   const accent = role?.accent || '#60a5fa'
+
+  const handleSwitchRole = () => {
+    logout()
+    navigate('/login', { replace: true })
+  }
 
   return (
     <header className="sticky top-0 z-30 border-b border-[#262c3a] bg-[#0f1117]/95 backdrop-blur">
@@ -35,6 +42,17 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-2">
+          {user && (
+            <button
+              type="button"
+              onClick={handleSwitchRole}
+              aria-label={t('common.switchRole')}
+              className="flex h-8 items-center gap-1 rounded-lg border border-[#262c3a] bg-[#161a23] px-2.5 text-[11px] font-semibold text-[#8a93a6] active:bg-[#1d2230]"
+            >
+              <RefreshCcw className="h-3.5 w-3.5" />
+              {t('common.switchRole')}
+            </button>
+          )}
           <button
             type="button"
             aria-label={t('common.notifications')}

@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Mail, Lock, ChevronDown } from 'lucide-react'
+import { Phone, Lock, ChevronRight, AlertCircle, Loader } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
 import { ROLES, ROLE_LIST } from '../../auth/roles'
 import { useI18n } from '../../i18n/I18nContext'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { loginAs } = useAuth()
+  const { loginAs, loginReal, isSupabaseConfigured } = useAuth()
   const { t } = useI18n()
   const [params] = useSearchParams()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [roleId, setRoleId] = useState('site_manager')
+
+  const [mode, setMode] = useState('demo') // 'real' | 'demo'
+  const [phone, setPhone] = useState('')
+  const [pin, setPin] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const as = params.get('as')
@@ -22,9 +25,15 @@ export default function Login() {
     }
   }, [params, loginAs, navigate])
 
-  const handleSignIn = (e) => {
+  const handleRealLogin = async (e) => {
     e.preventDefault()
-    loginAs(roleId)
+    setError('')
+    if (!phone.trim()) { setError('Enter your phone number.'); return }
+    if (pin.length !== 4) { setError('PIN must be 4 digits.'); return }
+    setLoading(true)
+    const { error: err } = await loginReal(phone, pin)
+    setLoading(false)
+    if (err) { setError(err); return }
     navigate('/', { replace: true })
   }
 
@@ -35,11 +44,10 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0f1117] text-white">
-      <div
-        className="h-1 w-full"
-        style={{ backgroundColor: '#60a5fa' }}
-      />
+      <div className="h-1 w-full bg-[#60a5fa]" />
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pt-12 pb-10">
+
+        {/* Logo */}
         <div className="flex flex-col items-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#60a5fa] text-2xl font-black text-[#0f1117] shadow-lg shadow-[#60a5fa]/30">
             S
@@ -50,78 +58,99 @@ export default function Login() {
           </p>
         </div>
 
-        <form onSubmit={handleSignIn} className="mt-10 space-y-3">
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-[#8a93a6]">
-              {t('login.email')}
-            </span>
-            <div className="flex items-center gap-3 rounded-xl border border-[#262c3a] bg-[#161a23] px-4 py-3">
-              <Mail className="h-5 w-5 text-[#8a93a6]" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t('login.emailPlaceholder')}
-                className="w-full bg-transparent text-base text-white placeholder-[#8a93a6] outline-none"
-                autoComplete="email"
-              />
-            </div>
-          </label>
+        {/* Mode toggle */}
+        <div className="mt-10 flex overflow-hidden rounded-xl border border-[#262c3a]">
+          {['real', 'demo'].map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => { setMode(m); setError('') }}
+              className="flex-1 py-2.5 text-sm font-semibold transition-colors"
+              style={{
+                backgroundColor: mode === m ? '#60a5fa' : '#161a23',
+                color: mode === m ? '#0f1117' : '#8a93a6',
+              }}
+            >
+              {m === 'real' ? t('login.realLogin') : t('login.demoMode')}
+            </button>
+          ))}
+        </div>
 
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-[#8a93a6]">
-              {t('login.password')}
-            </span>
-            <div className="flex items-center gap-3 rounded-xl border border-[#262c3a] bg-[#161a23] px-4 py-3">
-              <Lock className="h-5 w-5 text-[#8a93a6]" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-transparent text-base text-white placeholder-[#8a93a6] outline-none"
-                autoComplete="current-password"
-              />
-            </div>
-          </label>
+        {/* ── Real login ── */}
+        {mode === 'real' && (
+          <form onSubmit={handleRealLogin} className="mt-6 space-y-3">
+            {!isSupabaseConfigured && (
+              <div className="flex items-start gap-2 rounded-xl border border-[#fbbf24]/30 bg-[#fbbf24]/8 px-4 py-3">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#fbbf24]" />
+                <p className="text-xs text-[#fbbf24]">{t('login.noSupabase')}</p>
+              </div>
+            )}
 
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold text-[#8a93a6]">
-              {t('login.role')}
-            </span>
-            <div className="relative flex items-center rounded-xl border border-[#262c3a] bg-[#161a23] px-4 py-3">
-              <select
-                value={roleId}
-                onChange={(e) => setRoleId(e.target.value)}
-                className="w-full appearance-none bg-transparent text-base text-white outline-none"
-              >
-                {ROLE_LIST.map((r) => (
-                  <option key={r.id} value={r.id} className="bg-[#161a23]">
-                    {t(`roles.${r.id}`)}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-4 h-5 w-5 text-[#8a93a6]" />
-            </div>
-          </label>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-semibold text-[#8a93a6]">
+                {t('login.phone')}
+              </span>
+              <div className="flex items-center gap-3 rounded-xl border border-[#262c3a] bg-[#161a23] px-4 py-3">
+                <Phone className="h-5 w-5 text-[#8a93a6]" />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder={t('login.phonePlaceholder')}
+                  className="w-full bg-transparent text-base text-white placeholder-[#8a93a6] outline-none"
+                  autoComplete="tel"
+                />
+              </div>
+            </label>
 
-          <button
-            type="submit"
-            className="mt-2 flex min-h-[56px] w-full items-center justify-center rounded-xl bg-[#60a5fa] text-base font-bold text-[#0f1117] shadow-lg shadow-[#60a5fa]/20 active:bg-[#3b82f6]"
-          >
-            {t('login.signIn')}
-          </button>
-        </form>
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-semibold text-[#8a93a6]">
+                {t('login.pin')}
+              </span>
+              <div className="flex items-center gap-3 rounded-xl border border-[#262c3a] bg-[#161a23] px-4 py-3">
+                <Lock className="h-5 w-5 text-[#8a93a6]" />
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  pattern="\d{4}"
+                  maxLength={4}
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                  placeholder="••••"
+                  className="w-full bg-transparent text-xl tracking-[0.4em] text-white placeholder-[#8a93a6] outline-none"
+                  autoComplete="one-time-code"
+                />
+              </div>
+            </label>
 
-        <div className="mt-10">
-          <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-[#262c3a]" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#8a93a6]">
-              {t('login.demoMode')}
-            </span>
-            <span className="h-px flex-1 bg-[#262c3a]" />
-          </div>
-          <div className="mt-4 space-y-2.5">
+            {error && (
+              <div className="flex items-center gap-2 rounded-xl border border-[#ef4444]/30 bg-[#ef4444]/8 px-4 py-3">
+                <AlertCircle className="h-4 w-4 shrink-0 text-[#ef4444]" />
+                <p className="text-sm text-[#ef4444]">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 flex min-h-[56px] w-full items-center justify-center gap-2 rounded-xl bg-[#60a5fa] text-base font-bold text-[#0f1117] shadow-lg shadow-[#60a5fa]/20 disabled:opacity-60"
+            >
+              {loading ? (
+                <Loader className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  {t('login.signIn')}
+                  <ChevronRight className="h-5 w-5" />
+                </>
+              )}
+            </button>
+          </form>
+        )}
+
+        {/* ── Demo mode ── */}
+        {mode === 'demo' && (
+          <div className="mt-6 space-y-2.5">
+            <p className="text-center text-xs text-[#8a93a6]">{t('login.demoHint')}</p>
             {ROLE_LIST.map((r) => {
               const label = t(`roles.${r.id}`)
               return (
@@ -132,7 +161,7 @@ export default function Login() {
                   className="flex min-h-[52px] w-full items-center gap-3 rounded-xl border border-[#262c3a] bg-[#161a23] px-4 text-left active:bg-[#1d2230]"
                 >
                   <span
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold text-[#0f1117]"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-[#0f1117]"
                     style={{ backgroundColor: r.accent }}
                   >
                     {label.split(' ').map((w) => w[0]).join('').slice(0, 2)}
@@ -140,11 +169,20 @@ export default function Login() {
                   <span className="flex-1 text-sm font-semibold text-white">
                     {t('login.loginAs', { role: label })}
                   </span>
+                  <ChevronRight className="h-4 w-4 text-[#8a93a6]" />
                 </button>
               )
             })}
           </div>
-        </div>
+        )}
+
+        {/* Admin link */}
+        <p className="mt-10 text-center text-xs text-[#8a93a6]">
+          {t('login.adminAccess')}{' '}
+          <a href="/admin" className="font-semibold text-[#a78bfa]">
+            {t('login.adminLink')}
+          </a>
+        </p>
       </div>
     </div>
   )

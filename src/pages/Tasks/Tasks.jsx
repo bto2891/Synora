@@ -2,38 +2,41 @@ import { useState } from 'react'
 import { Search, Plus, Camera, Clock, Check, X } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
 import { useI18n } from '../../i18n/I18nContext'
-import { TASKS } from '../../data/sample'
+import { useTasks } from '../../context/TaskContext'
 
-const statusCls = {
-  in_progress: 'text-[#60a5fa] bg-[#60a5fa]/10 border-[#60a5fa]/30',
-  overdue: 'text-[#f97316] bg-[#f97316]/10 border-[#f97316]/30',
-  pending: 'text-[#8a93a6] bg-[#1d2230] border-[#262c3a]',
-  pending_approval: 'text-[#fbbf24] bg-[#fbbf24]/10 border-[#fbbf24]/30',
-  done: 'text-[#22c55e] bg-[#22c55e]/10 border-[#22c55e]/30',
+const STATUS_CLS = {
+  in_progress:     'text-[#60a5fa] bg-[#60a5fa]/10 border-[#60a5fa]/30',
+  overdue:         'text-[#f97316] bg-[#f97316]/10 border-[#f97316]/30',
+  pending:         'text-[#8a93a6] bg-[#1d2230] border-[#262c3a]',
+  pending_approval:'text-[#fbbf24] bg-[#fbbf24]/10 border-[#fbbf24]/30',
+  done:            'text-[#22c55e] bg-[#22c55e]/10 border-[#22c55e]/30',
+  rework:          'text-[#ef4444] bg-[#ef4444]/10 border-[#ef4444]/30',
 }
 
-function visibleTasksFor(user) {
-  if (user.role === 'technician') {
-    return TASKS.filter((t) => t.assignee === user.name)
-  }
-  if (user.role === 'supervisor') {
-    return TASKS.filter((t) => t.zone === user.zone)
-  }
-  return TASKS
-}
+const FILTERS = ['all', 'pending', 'in_progress', 'pending_approval', 'rework', 'overdue', 'done']
 
-const FILTERS = ['all', 'pending', 'in_progress', 'pending_approval', 'overdue', 'done']
+function visibleTasksFor(tasks, user) {
+  if (user.role === 'technician') return tasks.filter((t) => t.assignee === user.name)
+  if (user.role === 'supervisor') return tasks.filter((t) => t.zone === user.zone)
+  return tasks
+}
 
 export default function Tasks() {
   const { user, role } = useAuth()
   const { t, tr, tz } = useI18n()
-  const [filter, setFilter] = useState('all')
+  const { tasks, approveTask, rejectTask } = useTasks()
   const accent = role.accent
 
-  const baseTasks = visibleTasksFor(user)
-  const tasks = baseTasks.filter((task) => {
-    if (filter === 'all') return true
-    return task.status === filter
+  const [filter, setFilter] = useState('all')
+  const [search, setSearch] = useState('')
+  const [rejectingId, setRejectingId] = useState(null)
+  const [rejectReason, setRejectReason] = useState('')
+
+  const baseTasks = visibleTasksFor(tasks, user)
+  const filtered = baseTasks.filter((task) => {
+    if (filter !== 'all' && task.status !== filter) return false
+    if (search && !tr(task, 'name').toLowerCase().includes(search.toLowerCase())) return false
+    return true
   })
 
   const heading =
@@ -53,6 +56,13 @@ export default function Tasks() {
   const canCreate = user.role !== 'technician'
   const canApprove = user.role === 'supervisor' || user.role === 'site_manager'
 
+  const handleConfirmReject = (id) => {
+    if (!rejectReason.trim()) return
+    rejectTask(id, rejectReason.trim())
+    setRejectingId(null)
+    setRejectReason('')
+  }
+
   return (
     <div className="space-y-5">
       <header>
@@ -64,6 +74,8 @@ export default function Tasks() {
         <Search className="h-5 w-5 text-[#8a93a6]" />
         <input
           type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder={t('tasks.searchPlaceholder')}
           className="w-full bg-transparent text-base text-white placeholder-[#8a93a6] outline-none"
         />
@@ -88,11 +100,8 @@ export default function Tasks() {
       </div>
 
       <div className="space-y-3">
-        {tasks.map((task) => (
-          <div
-            key={task.id}
-            className="rounded-xl border border-[#262c3a] bg-[#161a23] p-4"
-          >
+        {filtered.map((task) => (
+          <div key={task.id} className="rounded-xl border border-[#262c3a] bg-[#161a23] p-4">
             <div className="flex gap-3">
               <div
                 className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg"
@@ -105,15 +114,16 @@ export default function Tasks() {
                   <span className="text-xs font-mono font-semibold text-[#8a93a6]">
                     {task.id}
                   </span>
-                  <span
-                    className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase ${statusCls[task.status]}`}
-                  >
+                  <span className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase ${STATUS_CLS[task.status] || STATUS_CLS.pending}`}>
                     {t(`status.${task.status}`)}
                   </span>
+                  {task.priority === 'urgent' && (
+                    <span className="rounded-md border border-[#f97316]/40 bg-[#f97316]/10 px-2 py-0.5 text-[11px] font-bold uppercase text-[#f97316]">
+                      {t('assign.urgent')}
+                    </span>
+                  )}
                 </div>
-                <p className="mt-1 text-base font-semibold text-white">
-                  {tr(task, 'name')}
-                </p>
+                <p className="mt-1 text-base font-semibold text-white">{tr(task, 'name')}</p>
                 <p className="mt-0.5 text-sm text-[#8a93a6]">
                   {tz(task.zone)} · {task.assignee}
                 </p>
@@ -124,30 +134,71 @@ export default function Tasks() {
               </div>
             </div>
 
-            {canApprove && task.status === 'pending_approval' && (
-              <div className="mt-3 flex gap-2">
-                <button
-                  type="button"
-                  className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#22c55e] text-sm font-bold text-[#0f1117] active:bg-[#16a34a]"
-                >
-                  <Check className="h-4 w-4" strokeWidth={3} />
-                  {t('home.approve')}
-                </button>
-                <button
-                  type="button"
-                  className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#ef4444]/30 bg-[#ef4444]/10 text-sm font-bold text-[#ef4444] active:bg-[#ef4444]/20"
-                >
-                  <X className="h-4 w-4" strokeWidth={3} />
-                  {t('home.reject')}
-                </button>
+            {task.status === 'rework' && task.rejectReason && (
+              <div className="mt-2 rounded-lg border border-[#ef4444]/20 bg-[#ef4444]/5 px-3 py-2">
+                <p className="text-xs text-[#ef4444]">
+                  {t('review.reworkReason', { reason: task.rejectReason })}
+                </p>
               </div>
+            )}
+
+            {canApprove && task.status === 'pending_approval' && (
+              <>
+                {rejectingId === task.id ? (
+                  <div className="mt-3 space-y-2">
+                    <textarea
+                      value={rejectReason}
+                      onChange={(e) => setRejectReason(e.target.value)}
+                      placeholder={t('review.rejectPlaceholder')}
+                      rows={2}
+                      autoFocus
+                      className="w-full resize-none rounded-xl border border-[#ef4444]/30 bg-[#1d2230] px-4 py-3 text-base text-white placeholder-[#8a93a6] outline-none"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => { setRejectingId(null); setRejectReason('') }}
+                        className="min-h-[44px] flex-1 rounded-lg border border-[#262c3a] bg-[#1d2230] text-sm font-semibold text-[#8a93a6]"
+                      >
+                        {t('common.cancel')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleConfirmReject(task.id)}
+                        disabled={!rejectReason.trim()}
+                        className="min-h-[44px] flex-1 rounded-lg bg-[#ef4444] text-sm font-bold text-white disabled:opacity-40"
+                      >
+                        {t('review.confirmReject')}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => approveTask(task.id)}
+                      className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#22c55e] text-sm font-bold text-[#0f1117] active:bg-[#16a34a]"
+                    >
+                      <Check className="h-4 w-4" strokeWidth={3} />
+                      {t('home.approve')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setRejectingId(task.id); setRejectReason('') }}
+                      className="flex min-h-[44px] flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#ef4444]/30 bg-[#ef4444]/10 text-sm font-bold text-[#ef4444] active:bg-[#ef4444]/20"
+                    >
+                      <X className="h-4 w-4" strokeWidth={3} />
+                      {t('home.reject')}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         ))}
-        {tasks.length === 0 && (
-          <p className="py-8 text-center text-sm text-[#8a93a6]">
-            {t('tasks.noMatch')}
-          </p>
+
+        {filtered.length === 0 && (
+          <p className="py-8 text-center text-sm text-[#8a93a6]">{t('tasks.noMatch')}</p>
         )}
       </div>
 

@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useAuth } from '../../auth/AuthContext'
-import { Search, Package, AlertTriangle, Plus, Send } from 'lucide-react'
+import { Search, Package, AlertTriangle, Plus, Send, Check } from 'lucide-react'
 import { useI18n } from '../../i18n/I18nContext'
-import { WAREHOUSE_ITEMS } from '../../data/sample'
+import { useToolRequests } from '../../context/ToolRequestContext'
+import { WAREHOUSE_ITEMS, TASKS } from '../../data/sample'
 
 function stockBadgeKey(item) {
   if (item.stock === 0) {
@@ -16,8 +18,33 @@ function stockBadgeKey(item) {
 export default function Warehouse() {
   const { user, role } = useAuth()
   const { t, tr } = useI18n()
+  const { requestTool } = useToolRequests()
   const accent = role.accent
   const lowItems = WAREHOUSE_ITEMS.filter((i) => i.stock <= i.threshold)
+
+  const canManage = user.role === 'warehouse_manager'
+  const isTechnician = user.role === 'technician'
+
+  const myTasks = isTechnician ? TASKS.filter((tk) => tk.assignee === user.name) : []
+  const activeTask = myTasks.find((tk) => tk.status === 'in_progress') || myTasks[0]
+
+  const [requestedSkus, setRequestedSkus] = useState(new Set())
+
+  const handleRequest = (it) => {
+    requestTool({
+      item: it.name,
+      item_es: it.name_es,
+      sku: it.sku,
+      qty: 1,
+      taskId: activeTask?.id || '—',
+      task: activeTask?.name || '—',
+      task_es: activeTask?.name_es || '—',
+      technicianId: user.id,
+      technician: user.name,
+      technicianInitials: user.initials,
+    })
+    setRequestedSkus((prev) => new Set([...prev, it.sku]))
+  }
 
   if (user.role === 'site_manager') {
     return (
@@ -49,21 +76,13 @@ export default function Warehouse() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-[#8a93a6]">
-                      {it.sku}
-                    </span>
-                    <span
-                      className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase ${b.cls}`}
-                    >
+                    <span className="text-xs font-mono text-[#8a93a6]">{it.sku}</span>
+                    <span className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase ${b.cls}`}>
                       {t(`warehousePage.stock.${b.key}`)}
                     </span>
                   </div>
-                  <p className="mt-1 text-base font-semibold text-white">
-                    {tr(it, 'name')}
-                  </p>
-                  <p className="text-sm text-[#8a93a6]">
-                    {t('warehousePage.location', { loc: it.location })}
-                  </p>
+                  <p className="mt-1 text-base font-semibold text-white">{tr(it, 'name')}</p>
+                  <p className="text-sm text-[#8a93a6]">{t('warehousePage.location', { loc: it.location })}</p>
                 </div>
                 <p className="text-2xl font-bold text-white">{it.stock}</p>
               </div>
@@ -73,9 +92,6 @@ export default function Warehouse() {
       </div>
     )
   }
-
-  const canManage = user.role === 'warehouse_manager'
-  const isTechnician = user.role === 'technician'
 
   const subtitle = canManage
     ? t('warehousePage.subManage')
@@ -103,32 +119,22 @@ export default function Warehouse() {
         {WAREHOUSE_ITEMS.map((it) => {
           const b = stockBadgeKey(it)
           const out = it.stock === 0
+          const alreadyRequested = requestedSkus.has(it.sku)
           return (
-            <div
-              key={it.sku}
-              className="rounded-xl border border-[#262c3a] bg-[#161a23] p-4"
-            >
+            <div key={it.sku} className="rounded-xl border border-[#262c3a] bg-[#161a23] p-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#1d2230] text-[#60a5fa]">
                   <Package className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-[#8a93a6]">
-                      {it.sku}
-                    </span>
-                    <span
-                      className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase ${b.cls}`}
-                    >
+                    <span className="text-xs font-mono text-[#8a93a6]">{it.sku}</span>
+                    <span className={`rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase ${b.cls}`}>
                       {t(`warehousePage.stock.${b.key}`)}
                     </span>
                   </div>
-                  <p className="mt-1 text-base font-semibold text-white">
-                    {tr(it, 'name')}
-                  </p>
-                  <p className="text-sm text-[#8a93a6]">
-                    {t('warehousePage.location', { loc: it.location })}
-                  </p>
+                  <p className="mt-1 text-base font-semibold text-white">{tr(it, 'name')}</p>
+                  <p className="text-sm text-[#8a93a6]">{t('warehousePage.location', { loc: it.location })}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-bold text-white">{it.stock}</p>
@@ -139,12 +145,28 @@ export default function Warehouse() {
               {isTechnician && (
                 <button
                   type="button"
-                  disabled={out}
+                  disabled={out || alreadyRequested}
+                  onClick={() => !out && !alreadyRequested && handleRequest(it)}
                   className="mt-3 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg text-base font-bold text-[#0f1117] disabled:opacity-40"
-                  style={{ backgroundColor: out ? '#262c3a' : accent }}
+                  style={{
+                    backgroundColor: alreadyRequested
+                      ? '#22c55e'
+                      : out
+                        ? '#262c3a'
+                        : accent,
+                  }}
                 >
-                  <Send className="h-5 w-5" />
-                  {out ? t('warehousePage.outOfStock') : t('warehousePage.request')}
+                  {alreadyRequested ? (
+                    <>
+                      <Check className="h-5 w-5" strokeWidth={3} />
+                      {t('toolRequests.requestSent')}
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-5 w-5" />
+                      {out ? t('warehousePage.outOfStock') : t('warehousePage.request')}
+                    </>
+                  )}
                 </button>
               )}
 
