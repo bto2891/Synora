@@ -4,12 +4,22 @@ import { Phone, Lock, ChevronRight, AlertCircle, Loader } from 'lucide-react'
 import { useAuth } from '../../auth/AuthContext'
 import { ROLES, ROLE_LIST } from '../../auth/roles'
 import { useI18n } from '../../i18n/I18nContext'
+import { useSupabaseStatus } from '../../hooks/useSupabaseStatus'
+
+const STATUS_CONFIG = {
+  checking:       { dot: '#8a93a6', label: 'Checking…',           pulse: true  },
+  connected:      { dot: '#22c55e', label: 'Supabase Connected',  pulse: false },
+  offline:        { dot: '#ef4444', label: 'Supabase Offline',    pulse: false },
+  not_configured: { dot: '#8a93a6', label: 'Supabase Not Configured', pulse: false },
+}
 
 export default function Login() {
   const navigate = useNavigate()
   const { loginAs, loginReal, isSupabaseConfigured } = useAuth()
   const { t } = useI18n()
   const [params] = useSearchParams()
+
+  const sbStatus = useSupabaseStatus()
 
   const [mode, setMode] = useState('demo') // 'real' | 'demo'
   const [phone, setPhone] = useState('')
@@ -56,6 +66,30 @@ export default function Login() {
           <p className="mt-1 text-xs font-semibold uppercase tracking-[0.3em] text-[#8a93a6]">
             {t('appTagline')}
           </p>
+
+          {/* Supabase status indicator */}
+          {(() => {
+            const cfg = STATUS_CONFIG[sbStatus]
+            return (
+              <div className="mt-4 flex items-center gap-2 rounded-full border border-[#262c3a] bg-[#161a23] px-3 py-1.5">
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: cfg.dot }}
+                  />
+                  {cfg.pulse && (
+                    <span
+                      className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-60"
+                      style={{ backgroundColor: cfg.dot }}
+                    />
+                  )}
+                </span>
+                <span className="text-xs font-medium" style={{ color: cfg.dot }}>
+                  {cfg.label}
+                </span>
+              </div>
+            )
+          })()}
         </div>
 
         {/* Mode toggle */}
